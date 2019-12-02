@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from datetime import date
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import *
 import sys
 import calendar
@@ -14,11 +14,13 @@ from time import sleep
 
 nse=Nse()
 # Stock options (Similarly for index options, set index = True)
-
+totalprofit=0
 
 def get_symbol_futures_price(sym, month_val ):
     today=date(datetime.now().year,datetime.now().month,datetime.now().day)
-    day1=date(datetime.now().year,datetime.now().month,1)
+    day1=datetime(datetime.now().year,datetime.now().month,1) - timedelta(days=1)
+    day1=get_expiry_date(datetime.now().year,day1.month)
+
 
     year_val = datetime.now().year
     if month_val == 13 :
@@ -34,7 +36,9 @@ def get_symbol_futures_price(sym, month_val ):
     return float(stock_fut['Last'][-1])
 
 def get_list_of_futures_price_for_next_months(symbol):
-
+     
+    global totalprofit
+     
     if not nse.is_valid_code(symbol):
          print ("Error : " + symbol + "is not valid")
          sys.exit(-1)
@@ -47,11 +51,11 @@ def get_list_of_futures_price_for_next_months(symbol):
     #    return
     
     day_val = get_expiry_date(datetime.now().year,datetime.now().month)
-    val = get_symbol_futures_price(symbol, datetime.now().month)
+    val = get_symbol_futures_price(symbol, datetime.now().month )
 
     val_next_month = get_symbol_futures_price(symbol, datetime.now().month + 1)
     
-    spot_price = nse.get_quote(symbol)['closePrice']
+    spot_price = nse.get_quote(symbol)['lastPrice']
     
     diff_with_spot_price_curr_month = spot_price - val
     if diff_with_spot_price_curr_month < 0:
@@ -71,28 +75,29 @@ def get_list_of_futures_price_for_next_months(symbol):
     
     if expectedprofit < 5000 : 
         return 
-
+    
+    totalprofit += int(expectedprofit)
     print("Symbol : "+symbol + "   Lot Size : " + str(lot_size))
     print("===================")
     print("Stock Price : "+str(spot_price))
     print(month[datetime.now().month] + " Fut Price : " + str(val))
-    print(month[datetime.now().month + 1] + " Fut Price : " + str(val_next_month))
+    print(month[(datetime.now() + relativedelta( months=+1)).month] + " Fut Price : " + str(val_next_month))
     print("Expected Profit: " + str(expectedprofit))
-    print("********************")
+    print("************************************************************")
 
 
+#04-11-2012 removed bankindia
+fno_list = [ 'ACC','ADANIENT','ADANIPORTS','ADANIPOWER','AMARAJABAT','AMBUJACEM','APOLLOHOSP','APOLLOTYRE','ASHOKLEY','ASIANPAINT','AUROPHARMA','AXISBANK','BAJAJ-AUTO','BAJAJFINSV','BAJFINANCE','BALKRISIND','BANKBARODA','BATAINDIA','BEL','BERGEPAINT','BHARATFORG','BHARTIARTL','BHEL','BIOCON','BOSCHLTD','BPCL','BRITANNIA','CADILAHC','CANBK','CASTROLIND','CENTURYTEX','CESC','CHOLAFIN','CIPLA','COALINDIA','COLPAL','CONCOR','CUMMINSIND','DABUR','DISHTV','DIVISLAB','DLF','DRREDDY','EICHERMOT','EQUITAS','ESCORTS','EXIDEIND','FEDERALBNK','GAIL','GLENMARK','GMRINFRA','GODREJCP','GRASIM','HAVELLS','HCLTECH','HDFC','HDFCBANK','HEROMOTOCO','HINDALCO','HINDPETRO','HINDUNILVR','IBULHSGFIN','ICICIBANK','ICICIPRULI','IDEA','IDFCFIRSTB','IGL','INDIGO','INDUSINDBK','INFRATEL','INFY','IOC','ITC','JINDALSTEL','JSWSTEEL','JUBLFOOD','JUSTDIAL','KOTAKBANK','L&TFH','LICHSGFIN','LT','LUPIN','M&M','M&MFIN','MANAPPURAM','MARICO','MARUTI','MCDOWELL-N','MFSL','MGL','MINDTREE','MOTHERSUMI','MRF','MUTHOOTFIN','NATIONALUM','NBCC','NCC','NESTLEIND','NIITTECH','NMDC','NTPC','OIL','ONGC','PAGEIND','PEL','PETRONET','PFC','PIDILITIND','PNB','POWERGRID','PVR','RAMCOCEM','RBLBANK','RECLTD','RELIANCE','SAIL','SBIN','SHREECEM','SIEMENS','SRF','SRTRANSFIN','SUNPHARMA','SUNTV','TATACHEM','TATAGLOBAL','TATAMOTORS','TATAMTRDVR','TATAPOWER','TATASTEEL','TCS','TECHM','TITAN','TORNTPHARM','TORNTPOWER','TVSMOTOR','UBL','UJJIVAN','ULTRACEMCO','UPL','VEDL','VOLTAS','WIPRO','YESBANK','ZEEL' ] 
 
-fno_list = ['ACC', 'ADANIENT', 'ADANIPORTS', 'ADANIPOWER', 'AMARAJABAT', 'AMBUJACEM', 'APOLLOHOSP', 'APOLLOTYRE',
-'ASHOKLEY', 'ASIANPAINT', 'AUROPHARMA', 'AXISBANK', 'BAJAJ-AUTO', 'BAJFINANCE', 'BAJAJFINSV', 'BALKRISIND',
-'BANKBARODA', 'BANKINDIA', 'BATAINDIA', 'BERGEPAINT', 'BEL', 'BHARATFORG', 'BPCL', 'BHARTIARTL', 'INFRATEL', 'BHEL', 'BIOCON', 'BOSCHLTD', 'BRITANNIA', 'CADILAHC', 'CANBK', 'CASTROLIND', 'CENTURYTEX', 'CESC', 'CHOLAFIN', 'CIPLA', 'COALINDIA', 'COLPAL', 'CONCOR', 'CUMMINSIND', 'DABUR', 'DISHTV', 'DIVISLAB', 'DLF', 'DRREDDY', 'EICHERMOT', 'EQUITAS', 'ESCORTS', 'EXIDEIND', 'FEDERALBNK', 'GAIL', 'GLENMARK', 'GMRINFRA', 'GODREJCP', 'GRASIM', 'HAVELLS', 'HCLTECH', 'HDFCBANK', 'HDFC', 'HEROMOTOCO', 'HEXAWARE', 'HINDALCO', 'HINDPETRO', 'HINDUNILVR', 'ICICIBANK', 'ICICIPRULI', 'IDEA', 'IDFCFIRSTB', 'IBULHSGFIN', 'IOC', 'IGL', 'INDUSINDBK', 'INFY', 'INDIGO', 'ITC', 'JINDALSTEL', 'JSWSTEEL', 'JUBLFOOD', 'JUSTDIAL', 'KOTAKBANK', 'L&TFH', 'LT', 'LICHSGFIN', 'LUPIN', 'M&MFIN', 'MGL', 'M&M', 'MANAPPURAM', 'MARICO', 'MARUTI', 'MFSL', 'MINDTREE', 'MOTHERSUMI', 'MRF', 'MUTHOOTFIN', 'NATIONALUM', 'NBCC', 'NCC', 'NESTLEIND', 'NIITTECH', 'NMDC', 'NTPC', 'ONGC', 'OIL', 'PAGEIND', 'PETRONET', 'PIDILITIND', 'PEL', 'PFC', 'POWERGRID', 'PNB', 'PVR', 'RBLBANK', 'RELIANCE', 'RECLTD', 'SHREECEM', 'SRTRANSFIN', 'SIEMENS', 'SRF', 'SBIN', 'SAIL', 'SUNPHARMA', 'SUNTV', 'TATACHEM', 'TCS', 'TATAELXSI', 'TATAGLOBAL', 'TATAMTRDVR', 'TATAMOTORS', 'TATAPOWER', 'TATASTEEL', 'TECHM', 'RAMCOCEM', 'TITAN', 'TORNTPHARM', 'TORNTPOWER', 'TVSMOTOR', 'UJJIVAN', 'ULTRACEMCO', 'UNIONBANK', 'UBL', 'MCDOWELL-N', 'UPL', 'VEDL', 'VOLTAS', 'WIPRO', 'YESBANK', 'ZEEL' ]
 for symbol in fno_list:
     try:
         get_list_of_futures_price_for_next_months(symbol)
+
         #sleep(randint(1,15))
     except:
-        print("Oops Couldnt get complete details. Please try after sometimei. Completed till " + symbol)
-        break
+        print("Oops Couldnt get complete details. Please try after sometime. Broken at  " + symbol)
+        #break
 
-
+print ("\n TOTAL Expected Profit : " + str(totalprofit )) 
 
 sys.exit()
