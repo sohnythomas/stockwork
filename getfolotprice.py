@@ -23,5 +23,6 @@ for x in fo_stocks_list:
     except IndexError:
       currentprice = 0
     value = fo_stocks_dict[x] * currentprice 
+    tickvalue = fo_stocks_dict[x] * .05
     #print ( "Stock :  {}, Lot : {}, Value: {} \n".format( x , str(fo_stocks_dict[x]) , str(round(value,2) ))
-    print ( "{}, {}, {}, {}".format( x , str(currentprice), str(fo_stocks_dict[x]) , str(round (value,2)) ))
+    print ( "{}, {}, {}, {}, {}".format( x , str(currentprice), str(fo_stocks_dict[x]) , str(round (value,2)),str(tickvalue) ))
